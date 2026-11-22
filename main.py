@@ -15,8 +15,13 @@ DST = os.path.join(os.environ.get("OUTPUT_DIR", "/output"), "entry.png")
 
 
 def main() -> None:
-    os.makedirs(os.path.dirname(DST), exist_ok=True)
+    out_dir = os.path.dirname(DST)
+    os.makedirs(out_dir, exist_ok=True)
+    os.chmod(out_dir, 0o755)
     shutil.copyfile(SRC, DST)
+    # make.fun collects /output as another user than the one this runs as,
+    # so the copy must be readable by everyone, whatever the umask.
+    os.chmod(DST, 0o644)
 
 
 if __name__ == "__main__":
