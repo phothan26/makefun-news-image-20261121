@@ -17,11 +17,15 @@ DST = os.path.join(os.environ.get("OUTPUT_DIR", "/output"), "entry.png")
 def main() -> None:
     out_dir = os.path.dirname(DST)
     os.makedirs(out_dir, exist_ok=True)
-    os.chmod(out_dir, 0o755)
     shutil.copyfile(SRC, DST)
     # make.fun collects /output as another user than the one this runs as,
-    # so the copy must be readable by everyone, whatever the umask.
-    os.chmod(DST, 0o644)
+    # so the copy should be readable by everyone, whatever the umask.
+    # Never fail the run over it: the grader's /output may belong to
+    # another user, and only the file this process just created is ours.
+    try:
+        os.chmod(DST, 0o644)
+    except OSError:
+        pass
 
 
 if __name__ == "__main__":
